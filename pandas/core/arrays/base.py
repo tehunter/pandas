@@ -31,6 +31,7 @@ from pandas._typing import (
     ArrayLike,
     AstypeArg,
     AxisInt,
+    DropKeep,
     Dtype,
     FillnaOptions,
     PositionalIndexer,
@@ -78,6 +79,7 @@ from pandas.core import (
     roperator,
 )
 from pandas.core.algorithms import (
+    duplicated,
     factorize_array,
     isin,
     mode,
@@ -887,6 +889,32 @@ class ExtensionArray:
             a = self[abs(periods) :]
             b = empty
         return self._concat_same_type([a, b])
+
+    def duplicated(
+        self: ExtensionArrayT,
+        keep: DropKeep = "first",
+    ) -> npt.NDArray[np.bool_]:
+        """
+        Indicate duplicate ExtensionArray values.
+
+        Duplicated values are indicated as ``True`` values in the resulting
+        array. Either all duplicates, all except the first or all except the
+        last occurrence of duplicates can be indicated.
+
+        The base implementation uses ``pd.core.algorithms.duplicated``
+
+        Parameters
+        ----------
+        keep : DropKeep, optional
+            See ``Series.duplicated``, by default "first"
+
+        Returns
+        -------
+        npt.NDArray[np.bool_]
+            A numpy boolean array indicating duplicates as determined by ``keep``
+            argument
+        """
+        return duplicated(self, keep=keep)
 
     def unique(self: ExtensionArrayT) -> ExtensionArrayT:
         """

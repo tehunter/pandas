@@ -1316,7 +1316,12 @@ class IndexOpsMixin(OpsMixin):
 
     @final
     def _duplicated(self, keep: DropKeep = "first") -> npt.NDArray[np.bool_]:
-        return duplicated(self._values, keep=keep)
+        values = self._values
+        if not isinstance(values, np.ndarray):
+            # Going through EA.duplicated directly can improve performance GH#48424
+            return values.duplicated(keep=keep)
+
+        return duplicated(values, keep=keep)
 
     def _arith_method(self, other, op):
         res_name = ops.get_op_result_name(self, other)
